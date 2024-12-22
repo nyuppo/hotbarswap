@@ -2,17 +2,18 @@ package com.github.nyuppo.mixin;
 
 import com.github.nyuppo.HotbarCycleClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
 import net.minecraft.entity.player.PlayerInventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerInventory.class)
+@Mixin(Mouse.class)
 public class ScrollCycleMixin {
-    @Inject(method = "scrollInHotbar(D)V", at = @At("HEAD"), cancellable = true)
-    private void hotbarcycleScrollInHotbar(double scrollAmount, CallbackInfo ci) {
-        final HotbarCycleClient.Direction direction = Math.signum(scrollAmount) < 0
+    @Inject(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;setSelectedSlot(I)V"), cancellable = true)
+    private void hotbarcycleScrollInHotbar(long window, double horizontal, double vertical, CallbackInfo ci) {
+        final HotbarCycleClient.Direction direction = Math.signum(horizontal) < 0
                 ? HotbarCycleClient.Direction.UP
                 : HotbarCycleClient.Direction.DOWN;
         if (HotbarCycleClient.getConfig().getHoldAndScroll() && HotbarCycleClient.getCycleKeyBinding().isPressed()) {
